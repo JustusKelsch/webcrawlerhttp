@@ -7,6 +7,9 @@
     "start": "node main.js",
     "test": "jest"
   },
+  "jest": {
+    "transform": {}
+  },
   "author": "",
   "license": "ISC",
   "devDependencies": {
