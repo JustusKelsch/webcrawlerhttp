@@ -1,7 +1,7 @@
 const { argv } = require('node:process');
 const { crawlPage } = require('./crawl.js');
 
-function main() {
+async function main() {
 
     if (argv.length < 3) {
         console.log('Not enough CLI arguments');
@@ -14,8 +14,9 @@ function main() {
     const baseURL = argv[2];
 
     console.log(`The crawler has started at: ${baseURL}`)
-    //console.log(crawlPage(baseURL));
-    crawlPage(baseURL)
+
+    const pages = await crawlPage(baseURL);
+    console.log(pages);
 
 }
 

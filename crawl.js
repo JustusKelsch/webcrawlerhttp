@@ -30,8 +30,7 @@ function getURLsFromHTML(htmlBody, baseURL) {
     return urlList;
 }
 
-async function crawlPage(currentURL) {
-
+async function getWebPage(currentURL) {
     let response;
     try {
         response = await fetch(currentURL);
@@ -41,16 +40,50 @@ async function crawlPage(currentURL) {
     }
 
     if (response.status >= 400) {
-        console.log('Could not connect to the website');
-        return;
+        throw new Error(`Got HTTP error: ${response.status} ${response.statusText}`)
     }
 
-    if (!response.headers.get('content-type').includes('text/html')) {
-        console.log('No HTML found');
-        return;
+    const contentType = response.headers.get('content-type');
+    if (!contentType.includes('text/html') || !contentType) {
+        throw new Error(`Got non-HTML response: ${contentType}`)
     }
 
-    console.log(await response.text());
+    return response.text();
+}
+
+async function crawlPage(baseURL, currentURL = baseURL, pages = {}) {
+    const baseURLObj = new URL(baseURL);
+    const currURLObj = new URL(currentURL);
+
+    if (baseURLObj.hostname !== currURLObj.hostname) {
+        return pages;
+    }
+
+    const normalizedURL = normalizeURL(currentURL);
+
+    if (pages[normalizedURL] > 0) {
+        pages[normalizedURL]++;
+        return pages;
+    }
+    else {
+        pages[normalizedURL] = 1;
+    }
+
+    let htmlBody = '';
+    try {
+        htmlBody = await getWebPage(currentURL);
+    }
+    catch (err) {
+        console.log(`${err.message}`);
+        return pages;
+    }
+
+    const urls = getURLsFromHTML(htmlBody, baseURL);
+    for (const url of urls) {
+        pages = await crawlPage(baseURL, url, pages)
+    }
+    
+    return pages;
 
 }
 
