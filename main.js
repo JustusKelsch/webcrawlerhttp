@@ -1,5 +1,6 @@
 const { argv } = require('node:process');
 const { crawlPage } = require('./crawl.js');
+const { printReport } = require('./report.js');
 
 async function main() {
 
@@ -16,7 +17,7 @@ async function main() {
     console.log(`The crawler has started at: ${baseURL}`)
 
     const pages = await crawlPage(baseURL);
-    console.log(pages);
+    printReport(pages);
 
 }
 
