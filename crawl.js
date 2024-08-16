@@ -1,5 +1,4 @@
-const jsdom = require('jsdom');
-const { JSDOM } = jsdom;
+const { JSDOM } = require('jsdom');
 
 function normalizeURL(urlString) {
     const urlObject = new URL(urlString);
@@ -31,7 +30,32 @@ function getURLsFromHTML(htmlBody, baseURL) {
     return urlList;
 }
 
+async function crawlPage(currentURL) {
+
+    let response;
+    try {
+        response = await fetch(currentURL);
+    }
+    catch (err) {
+        throw new Error(`Network error: ${err.message}`)
+    }
+
+    if (response.status >= 400) {
+        console.log('Could not connect to the website');
+        return;
+    }
+
+    if (!response.headers.get('content-type').includes('text/html')) {
+        console.log('No HTML found');
+        return;
+    }
+
+    console.log(await response.text());
+
+}
+
 module.exports = {
     normalizeURL,
-    getURLsFromHTML
+    getURLsFromHTML,
+    crawlPage,
 }
